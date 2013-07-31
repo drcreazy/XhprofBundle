@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Doctrine\Bundle\DoctrineBundle\Registry as DoctrineRegistry;
 use Jns\Bundle\XhprofBundle\Entity\XhprofDetail;
-use PDO;
+
 /**
  * XhprofDataCollector.
  *
@@ -51,7 +51,7 @@ class XhprofCollector extends DataCollector
             'xhprof' => $this->runId,
             'xhprof_url' => $this->container->getParameter('jns_xhprof.location_web'),
             'xhprofio_url' => $this->container->getParameter('jns_xhprof.xhprofio_url'),
-            'profiling_data' => $this->profilingData
+            'profiling_data' => $this->profilingData,
         );
 
         $response->headers->set('X-Xhprof-Url', $this->getXhprofUrl());
