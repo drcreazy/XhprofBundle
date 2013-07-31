@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Doctrine\Bundle\DoctrineBundle\Registry as DoctrineRegistry;
 use Jns\Bundle\XhprofBundle\Entity\XhprofDetail;
-
+use PDO;
 /**
  * XhprofDataCollector.
  *
@@ -24,6 +24,7 @@ class XhprofCollector extends DataCollector
     protected $runId;
     protected $doctrine;
     protected $profiling = false;
+    protected $profilingData;
 
     public function __construct(ContainerInterface $container, $logger = null, DoctrineRegistry $doctrine = null)
     {
@@ -49,6 +50,8 @@ class XhprofCollector extends DataCollector
         $this->data = array(
             'xhprof' => $this->runId,
             'xhprof_url' => $this->container->getParameter('jns_xhprof.location_web'),
+            'xhprofio_url' => $this->container->getParameter('jns_xhprof.xhprofio_url'),
+            'profiling_data' => $this->profilingData
         );
 
         $response->headers->set('X-Xhprof-Url', $this->getXhprofUrl());
@@ -90,6 +93,7 @@ class XhprofCollector extends DataCollector
         $this->profiling = false;
 
         $enableXhgui = $this->container->getParameter('jns_xhprof.enable_xhgui');
+        $enableXhprofio = $this->container->getParameter('jns_xhprof.enable_xhprofio');
 
         if ($enableXhgui) {
           require_once $this->container->getParameter('jns_xhprof.location_config');
@@ -108,6 +112,14 @@ class XhprofCollector extends DataCollector
 
         if ($enableXhgui) {
             $this->runId = $this->saveProfilingDataToDB($xhprof_data);
+        } elseif($enableXhprofio) {
+            $config = require_once $this->container->getParameter('jns_xhprof.xhprofio_config_file');
+            require_once $this->container->getParameter('jns_xhprof.xhprofio_data_file');
+
+            $xhprofDataObject = new \ay\xhprof\Data($config['pdo']);
+            $id = $xhprofDataObject->save($xhprof_data);
+            $this->profilingData = $xhprofDataObject->get($id);
+            $this->runId = $id;
         } else {
             $this->runId = $xhprof_runs->save_run($xhprof_data, "Symfony");
         }
@@ -203,7 +215,17 @@ class XhprofCollector extends DataCollector
      */
     public function getXhprofUrl()
     {
-        return $this->data['xhprof_url'] . '?run=' . $this->data['xhprof'] . '&source=Symfony';
+        $link = "";
+        if(isset($this->data['profiling_data'])) {
+            $link = sprintf('%s?xhprof[template]=requests&xhprof[query][host_id]=%d&xhprof[query][uri_id]=%d',
+                            $this->data['xhprofio_url'],
+                            $this->data['profiling_data']['host_id'],
+                            $this->data['profiling_data']['uri_id']
+                    );
+        } else {
+            $link = $this->data['xhprof_url'] . '?run=' . $this->data['xhprof'] . '&source=Symfony';
+        }
+        return $link;
     }
 
     /**
@@ -216,4 +238,3 @@ class XhprofCollector extends DataCollector
         return $this->data['xhprof']  ? true : false;
     }
 }
-

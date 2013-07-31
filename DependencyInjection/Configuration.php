@@ -32,6 +32,10 @@ class Configuration
                 ->scalarNode('location_web')->defaultValue('http://xhprof')->end()
                 ->scalarNode('entity_manager')->defaultValue('default')->end()
                 ->scalarNode('enable_xhgui')->defaultFalse()->end()
+                ->scalarNode('enable_xhprofio')->defaultFalse()->end()
+                ->scalarNode('xhprofio_config_file')->defaultValue('/opt/local/www/php5-xhprof.io/xhprof_lib/config.php')->end()
+                ->scalarNode('xhprofio_data_file')->defaultValue('/opt/local/www/php5-xhprof.io/classes/data.php')->end()
+                ->scalarNode('xhprofio_url')->defaultValue('http://xhprofio.local')->end()
                 ->scalarNode('sample_size')->defaultValue(1)->end()    
                 ->scalarNode('enabled')->defaultFalse()->end()
             ->end();

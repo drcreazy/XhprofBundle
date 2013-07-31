@@ -30,6 +30,12 @@ class JnsXhprofExtension extends Extension
         $configuration = new Configuration();
         $config = $processor->process($configuration->getConfigTree(), $configs);
 
+           if (!empty($config['enable_xhgui']) && !empty($config['enable_xhprofio'])) {
+            throw new \InvalidArgumentException(
+                'XHProf.io and XHGui can not be enabled simultaneously.'
+            );
+        }
+
         if ($config['enabled'] && function_exists('xhprof_enable')) {
             $this->loadDefaults($container);
 
