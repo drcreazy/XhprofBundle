@@ -101,6 +101,16 @@ defining the following settings in your config. The config is usually located at
 
 If you only have one entity manager defined, you don't need to set it here. This setting is for the case where you are using a seperate profiling database for XHGui (highly recommended).
 
+### Using XHProf.io
+
+[XHProf.io][4] new tool to visualise data collected with the XHProf C extension. To use, install XHProf.io, and add the following four settings to the configuration, usually located at `app/config/config.yml`:
+    
+    jns_xhprof:
+         xhprofio_config_file: /vagrant/xhprof.io/xhprof/includes/config.inc.php
+         xhprofio_data_file:   /vagrant/xhprof.io/xhprof/classes/data.php
+         xhprofio_url:    http://xhprof.localhost
+         enable_xhprofio: true
+
 ### Specifying a Sample Size
 
 You can specify a sample size for profiling. This is highly suggested for production environments that have plenty of requests. The sample size is set as a probability for profiling, so for example, if you set the sample size to 2, then on average, every second request will be profiled. Of course, in production you want to set it to a much higher value. Defaults to 1, so that every request will be profiled.  
@@ -111,3 +121,4 @@ You can specify a sample size for profiling. This is highly suggested for produc
 [1]: http://mirror.facebook.net/facebook/xhprof/doc.html
 [2]: http://www.macports.org/
 [3]: https://github.com/preinheimer/xhprof
+[4]: http://xhprof.io/
